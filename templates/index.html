@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVRAX // Level-Up Engine</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' fill='none'%3E%3Cpath d='M18 2L32 10V26L18 34L4 26V10L18 2Z' stroke='%23ffffff' stroke-width='2' fill='%23000000'/%3E%3Cpath d='M18 10L13 18H23L18 26' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <!-- Google Fonts: Inter & JetBrains Mono for Next.js / Vercel Aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Minimalist Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            /* Vercel / Next.js Design Tokens */
+            --bg-base: #000000;
+            --bg-subtle: #09090b;
+            --bg-card: #0d0d10;
+            --bg-card-hover: #131317;
+            --bg-input: #121215;
+
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.22);
+            --border-focus: rgba(255, 255, 255, 0.5);
+
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #52525b;
+
+            --color-white: #ffffff;
+            --color-black: #000000;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px 28px 48px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* ==================== VERCEL NAVBAR ==================== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 22px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        /* Unique Geometric Apex Logo Mark */
+        .brand-logo-wrap {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .brand-box:hover .brand-logo-wrap {
+            transform: scale(1.08) rotate(3deg);
+        }
+
+        .brand-svg-mark {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.12));
+        }
+
+        .brand-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-text h1 span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 3px;
+        }
+
+        .badge-next {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--color-success);
+            border-radius: 50%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Next.js Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            outline: none;
+            text-decoration: none;
+        }
+
+        .btn-white {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 600;
+            border-color: #ffffff;
+        }
+
+        .btn-white:hover {
+            background: #e4e4e7;
+            border-color: #e4e4e7;
+        }
+
+        .btn-subtle {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        .btn-subtle:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: var(--border-hover);
+        }
+
+        .btn-subtle.active-toggle {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* Next.js Minimal Mode Selector Dropdown */
+        .mode-select-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 5px 12px;
+            transition: all 0.15s ease;
+        }
+
+        .mode-select-wrap:hover {
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .mode-dropdown {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mode-dropdown option {
+            background: #0d0d10;
+            color: #ffffff;
+        }
+
+        .acc-mode-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 6px;
+            outline: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+
+        .acc-mode-select:hover {
+            border-color: var(--border-hover);
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .acc-mode-select option {
+            background: #0d0d10;
+            color: #ffffff;
+        }
+
+        /* ==================== STATS OVERVIEW ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.15s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .stat-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-icon-wrap {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .stat-num {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-white);
+            letter-spacing: -0.5px;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 6px;
+        }
+
+        .stat-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stat-pill {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .stat-pill.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        /* ==================== VELOCITY CHART ==================== */
+        .chart-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            margin-bottom: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chart-canvas-wrap {
+            height: 120px;
+            width: 100%;
+        }
+
+        /* ==================== MAIN SECTION (ACCOUNTS & TERMINAL) ==================== */
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1.55fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1050px) {
+            .dashboard-content { grid-template-columns: 1fr; }
+        }
+
+        .panel-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .search-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px 6px 30px;
+            font-size: 12px;
+            color: #ffffff;
+            outline: none;
+            width: 180px;
+            transition: all 0.15s;
+        }
+
+        .search-input:focus {
+            border-color: var(--border-focus);
+            width: 220px;
+        }
+
+        /* Account Cards */
+        .accounts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .acc-item {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            transition: border-color 0.15s ease;
+        }
+
+        .acc-item:hover {
+            border-color: var(--border-hover);
+        }
+
+        .acc-row-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .acc-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .acc-avatar-box {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--color-white);
+            flex-shrink: 0;
+        }
+
+        .acc-avatar-box .lvl-txt {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .acc-avatar-box .lvl-val {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .acc-details h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .region-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .acc-uid-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-copy-mini {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: color 0.15s;
+        }
+
+        .btn-copy-mini:hover {
+            color: var(--color-white);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .status-badge.in-match {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--color-white);
+        }
+
+        .status-badge.online {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: var(--color-success);
+        }
+
+        .status-badge.sleep {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+        }
+
+        .status-badge.sleep .status-dot {
+            background: #fbbf24;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Next.js Minimal Proxy Badge */
+        .proxy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 1px 6px;
+            border-radius: var(--radius-sm);
+            vertical-align: middle;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .proxy-badge.active {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: var(--color-success);
+        }
+
+        .proxy-badge.direct {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+        }
+
+        /* Clean Matrix Grid */
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-bottom: 14px;
+        }
+
+        .metric-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .metric-cell .lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .metric-cell .val {
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--color-white);
+        }
+
+        .metric-cell .val.green {
+            color: var(--color-success);
+        }
+
+        /* Next.js Minimal Progress Bar */
+        .progress-box {
+            margin-bottom: 14px;
+        }
+
+        .progress-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .progress-rail {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-thumb {
+            height: 100%;
+            background: #ffffff;
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
+        .acc-row-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .acc-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon-square {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 12px;
+        }
+
+        .btn-icon-square:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-color: var(--border-hover);
+        }
+
+        .btn-icon-square.danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--color-danger);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* ==================== VERCEL CONSOLE (TERMINAL) ==================== */
+        .terminal-wrap {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .terminal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tab-filter-group {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .terminal-view-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .console-screen {
+            flex: 1;
+            min-height: 500px;
+            max-height: 620px;
+            background: #000000;
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .console-screen::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .console-screen::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+        }
+
+        .terminal-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .term-ts {
+            color: #52525b;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .term-info { color: #d4d4d8; }
+        .term-success { color: #4ade80; }
+        .term-warning { color: #fbbf24; }
+        .term-error { color: #f87171; }
+
+        /* ==================== TOAST & MODAL ==================== */
+        #toast-shelf {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .toast-bubble {
+            background: #18181b;
+            border: 1px solid var(--border-hover);
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            animation: toast-up 0.2s ease;
+        }
+
+        @keyframes toast-up {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 16px;
+        }
+
+        .modal-mask.active { display: flex; }
+
+        .modal-dialog {
+            background: #09090b;
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            padding: 26px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+        }
+
+        .dialog-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .dialog-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .field-box {
+            margin-bottom: 16px;
+        }
+
+        .field-box label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .text-field {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .text-field:focus {
+            border-color: var(--border-focus);
+        }
+
+        .empty-placeholder {
+            text-align: center;
+            padding: 48px 16px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .empty-placeholder i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #27272a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Next.js Styled Header -->
+        <header>
+            <div class="brand-box">
+                <div class="brand-logo-wrap">
+                    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" class="brand-svg-mark">
+                        <!-- Outer Faceted Gaming Shield / Hexagon -->
+                        <path d="M18 2L32 10V26L18 34L4 26V10L18 2Z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round" fill="rgba(255, 255, 255, 0.04)" />
+                        <!-- Inner Interlocking Geometric Facet -->
+                        <path d="M18 7L27 12V24L18 29L9 24V12L18 7Z" fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.25)" stroke-width="1.2" stroke-linejoin="round" />
+                        <!-- Central Lightning Apex Glyph -->
+                        <path d="M18 10L13 18H23L18 26" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>NOVRAX <span>// Level-Up Engine</span></h1>
+                    <div class="header-meta">
+                        <span class="badge-next"><span class="status-dot"></span> Headless Core</span>
+                        <span class="badge-next">OB55</span>
+                        <span class="badge-next">IND Gateway</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="mode-select-wrap" title="Active Game Mode for Matchmaking">
+                    <i class="fa-solid fa-gamepad" style="color:var(--text-secondary); font-size:12px;"></i>
+                    <select id="global-mode-select" class="mode-dropdown" onchange="switchGameMode(this.value)">
+                        <option value="battle_royale" selected>Battle Royale (Normal)</option>
+                        <option value="br_ranked">Battle Royale (Ranked)</option>
+                        <option value="lone_wolf_1v1">Lone Wolf 1v1</option>
+                        <option value="lone_wolf_2v2">Lone Wolf 2v2</option>
+                        <option value="craftland">Craftland (UGC)</option>
+                        <option value="clash_squad">Clash Squad (Normal)</option>
+                        <option value="clash_squad_ranked">Clash Squad (Ranked)</option>
+                        <option value="training">Training Ground</option>
+                    </select>
+                </div>
+                <button class="btn btn-subtle" onclick="claimAllRewards()" title="Auto-Claim Daily Quests & BP Rewards for all accounts"><i class="fa-solid fa-gift"></i> Claim Rewards</button>
+                <button class="btn btn-subtle" id="sound-btn" onclick="toggleAudio()"><i class="fa-solid fa-volume-high"></i> Sound On</button>
+                <button class="btn btn-subtle" onclick="fetchStats()"><i class="fa-solid fa-arrow-rotate-right"></i> Refresh</button>
+                <button class="btn btn-white" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Add Account</button>
+            </div>
+        </header>
+
+        <!-- Metric Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-title">Total EXP Gained</span>
+                    <div class="stat-icon-wrap"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                </div>
+                <div class="stat-num" id="stat-total-exp">+0 EXP</div>
+                <div class="stat-bottom">
+                    <span>Session velocity</span>
+                    <span class="stat-pill success" id="stat-exp-rate">+0 EXP/h</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-title">Matches Completed</span>
+                    <div class="stat-icon-wrap"><i class="fa-solid fa-cube"></i></div>
+                </div>
+                <div class="stat-num" id="stat-total-matches">0</div>
+                <div class="stat-bottom">
+                    <span>Average speed</span>
+                    <span class="stat-pill" id="stat-match-rate">0/min</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-title">Active Accounts</span>
+                    <div class="stat-icon-wrap"><i class="fa-solid fa-users"></i></div>
+                </div>
+                <div class="stat-num" id="stat-total-accounts">0</div>
+                <div class="stat-bottom">
+                    <span>State</span>
+                    <span class="stat-pill" id="stat-active-in-match">0 In-Match</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-title">Uptime</span>
+                    <div class="stat-icon-wrap"><i class="fa-regular fa-clock"></i></div>
+                </div>
+                <div class="stat-num" id="stat-uptime">00:00:00</div>
+                <div class="stat-bottom">
+                    <span>Auto-renewal</span>
+                    <span class="stat-pill">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clean Minimalist Line Graph -->
+        <div class="chart-box">
+            <div class="chart-header">
+                <span class="chart-title"><i class="fa-solid fa-chart-simple"></i> Real-Time EXP Gain Velocity</span>
+                <span class="chart-meta" id="chart-status-meta">Auto-updating every 2s</span>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="minimalChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Dashboard Columns -->
+        <div class="dashboard-content">
+            <!-- Left: Accounts Monitor -->
+            <div class="panel-box">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-user-group"></i>
+                        <span>Accounts & Profiles</span>
+                    </div>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="search-input" id="search-input" placeholder="Search by UID / Name..." oninput="renderAccounts()">
+                    </div>
+                </div>
+
+                <div class="accounts-list" id="accounts-container">
+                    <div class="empty-placeholder">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <p>Syncing account states...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Console Log Stream -->
+            <div class="panel-box">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-terminal"></i>
+                        <span>Protocol Stream</span>
+                    </div>
+                    <div class="terminal-nav">
+                        <div class="tab-filter-group">
+                            <button class="tab-btn active" data-filter="all" onclick="applyFilter('all')">All</button>
+                            <button class="tab-btn" data-filter="match" onclick="applyFilter('match')">Matches</button>
+                            <button class="tab-btn" data-filter="exp" onclick="applyFilter('exp')">EXP</button>
+                            <button class="tab-btn" data-filter="error" onclick="applyFilter('error')">Errors</button>
+                        </div>
+                        <div class="terminal-view-actions">
+                            <button class="btn-icon-square" id="scroll-toggle" onclick="toggleAutoScroll()" title="Toggle Auto Scroll"><i class="fa-solid fa-arrow-down"></i></button>
+                            <button class="btn-icon-square" onclick="copyConsoleLogs()" title="Copy Logs"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="console-screen" id="console-screen">
+                    <!-- Logs stream dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Shelf -->
+    <div id="toast-shelf"></div>
+
+    <!-- Add Account Dialog -->
+    <div class="modal-mask" id="add-dialog">
+        <div class="modal-dialog">
+            <div class="dialog-header">
+                <h3>Add Account to Rotation</h3>
+                <button class="btn-icon-square" onclick="closeAddModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="add-form" onsubmit="submitAccount(event)">
+                <div class="field-box">
+                    <label>Login Method</label>
+                    <select class="text-field" id="auth-type" onchange="switchAuthType()">
+                        <option value="guest">Guest Credentials (UID + Password)</option>
+                        <option value="token">Access Token (JWT / MSDK)</option>
+                    </select>
+                </div>
+                <div id="guest-inputs">
+                    <div class="field-box">
+                        <label>Guest UID</label>
+                        <input type="text" class="text-field" id="input-uid" placeholder="e.g. 7870125661">
+                    </div>
+                    <div class="field-box">
+                        <label>Secret Password</label>
+                        <input type="text" class="text-field" id="input-pwd" placeholder="e.g. C0A155D98707FEBF...">
+                    </div>
+                </div>
+                <div id="token-inputs" style="display:none;">
+                    <div class="field-box">
+                        <label>Access Token</label>
+                        <textarea class="text-field" id="input-token" rows="3" placeholder="Paste access token..."></textarea>
+                    </div>
+                </div>
+                <div class="field-box">
+                    <label>Proxy / SOCKS5 <span style="font-size:11px; color:var(--text-muted); font-weight:normal;">(Optional - e.g. socks5://user:pass@host:port or http://host:port)</span></label>
+                    <input type="text" class="text-field" id="input-proxy" placeholder="socks5://user:pass@127.0.0.1:1080">
+                </div>
+                <div class="field-box">
+                    <label>Game Mode <span style="font-size:11px; color:var(--text-muted); font-weight:normal;">(Optional - default uses Global Mode)</span></label>
+                    <select class="text-field" id="input-mode">
+                        <option value="">Global Active Mode (Default)</option>
+                        <option value="lone_wolf_1v1">Lone Wolf 1v1 (Solo Duel)</option>
+                        <option value="lone_wolf_2v2">Lone Wolf 2v2 (Duo)</option>
+                        <option value="craftland">Craftland (UGC Fast EXP)</option>
+                        <option value="clash_squad">Clash Squad (Normal 4v4)</option>
+                        <option value="clash_squad_ranked">Clash Squad (Ranked)</option>
+                        <option value="training">Training Ground</option>
+                        <option value="battle_royale">Battle Royale (Classic)</option>
+                        <option value="br_ranked">Battle Royale (Ranked)</option>
+                    </select>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                    <button type="button" class="btn btn-subtle" onclick="closeAddModal()">Cancel</button>
+                    <button type="submit" class="btn btn-white">Save Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const startTime = Date.now();
+        let cachedAccounts = [];
+        let cachedLogs = [];
+        let currentFilter = 'all';
+        let autoScroll = true;
+        let audioMuted = false;
+        let lastLevelRegistry = {};
+        let sparklineChart = null;
+
+        // Clean Web Audio Level-Up Notification
+        let audioContext = null;
+        function getAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        function playChime() {
+            if (audioMuted) return;
+            try {
+                const ctx = getAudio();
+                const freqs = [440, 554.37, 659.25, 880];
+                freqs.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.08));
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime + (idx * 0.08));
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (idx * 0.08) + 0.28);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + (idx * 0.08));
+                    osc.stop(ctx.currentTime + (idx * 0.08) + 0.3);
+                });
+            } catch (e) {}
+        }
+
+        function toggleAudio() {
+            audioMuted = !audioMuted;
+            const btn = document.getElementById('sound-btn');
+            if (audioMuted) {
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Sound Off';
+                btn.classList.add('active-toggle');
+                pushToast("Sound Alerts Muted");
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Sound On';
+                btn.classList.remove('active-toggle');
+                pushToast("Sound Alerts Enabled");
+            }
+        }
+
+        function pushToast(message) {
+            const shelf = document.getElementById('toast-shelf');
+            const toast = document.createElement('div');
+            toast.className = 'toast-bubble';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--color-success)"></i> <span>${escapeHtml(message)}</span>`;
+            shelf.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(6px)';
+                setTimeout(() => toast.remove(), 250);
+            }, 2600);
+        }
+
+        async function switchGameMode(mode) {
+            try {
+                const res = await fetch('/api/mode/set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode })
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    pushToast(`Global Mode: ${data.mode_name}`);
+                    fetchStats();
+                } else {
+                    alert('Failed to change mode: ' + (data.error || 'Error'));
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function switchAccountMode(uid, mode) {
+            try {
+                const res = await fetch('/api/mode/set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid, mode })
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    pushToast(`UID ${uid} Mode: ${data.mode_name}`);
+                    fetchStats();
+                } else {
+                    alert('Failed to update account mode: ' + (data.error || 'Error'));
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function wakeAccount(uid) {
+            try {
+                pushToast(`Waking account ${uid}...`);
+                const res = await fetch('/api/account/wake', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid })
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    pushToast(`Account ${uid} awakened! Matchmaking resumed.`);
+                    fetchStats();
+                } else {
+                    alert('Wake failed: ' + (data.error || 'Error'));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function claimRewards(uid) {
+            try {
+                pushToast(`Claiming rewards for UID ${uid}...`);
+                const res = await fetch('/api/account/claim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid })
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    pushToast(`Reward claim requested for ${uid}`);
+                    fetchStats();
+                } else {
+                    alert('Claim error: ' + (data.error || 'Error'));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function claimAllRewards() {
+            if (!cachedAccounts || cachedAccounts.length === 0) {
+                return pushToast("No active accounts found to claim.");
+            }
+            pushToast(`Claiming rewards for ${cachedAccounts.length} accounts...`);
+            for (const acc of cachedAccounts) {
+                claimRewards(acc.uid);
+            }
+        }
+
+        // Minimalist Grayscale Chart.js Setup
+        function setupChart() {
+            const ctx = document.getElementById('minimalChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 120);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.08)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.00)');
+
+            sparklineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Gained EXP',
+                        data: [],
+                        borderColor: '#ffffff',
+                        borderWidth: 1.8,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 2.5,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#000000'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#121215',
+                            titleColor: '#a1a1aa',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                            borderWidth: 1,
+                            padding: 8,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: (c) => ` +${c.parsed.y.toLocaleString()} EXP`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#52525b', font: { family: 'JetBrains Mono', size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            ticks: { color: '#52525b', font: { family: 'JetBrains Mono', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Dialog Functions
+        function openAddModal() {
+            document.getElementById('add-dialog').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-dialog').classList.remove('active');
+        }
+
+        function switchAuthType() {
+            const type = document.getElementById('auth-type').value;
+            document.getElementById('guest-inputs').style.display = type === 'guest' ? 'block' : 'none';
+            document.getElementById('token-inputs').style.display = type === 'token' ? 'block' : 'none';
+        }
+
+        async function submitAccount(e) {
+            e.preventDefault();
+            const type = document.getElementById('auth-type').value;
+            let payload = {};
+            if (type === 'guest') {
+                const uid = document.getElementById('input-uid').value.trim();
+                const password = document.getElementById('input-pwd').value.trim();
+                if (!uid || !password) return alert('UID and Password are required');
+                payload = { uid, password };
+            } else {
+                const token = document.getElementById('input-token').value.trim();
+                if (!token) return alert('Token is required');
+                payload = { token };
+            }
+
+            const proxy = document.getElementById('input-proxy').value.trim();
+            if (proxy) {
+                payload.proxy = proxy;
+            }
+            const mode = document.getElementById('input-mode').value.trim();
+            if (mode) {
+                payload.mode = mode;
+            }
+
+            try {
+                const res = await fetch('/api/account/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    closeAddModal();
+                    document.getElementById('add-form').reset();
+                    pushToast('Account added to rotation');
+                    fetchStats();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to add account'));
+                }
+            } catch (err) {
+                alert('Request failed: ' + err);
+            }
+        }
+
+        async function deleteAccount(uid) {
+            if (!confirm(`Remove account ${uid} from rotation?`)) return;
+            try {
+                await fetch('/api/account/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid })
+                });
+                pushToast(`Account ${uid} removed`);
+                fetchStats();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function refreshProfile(uid) {
+            try {
+                pushToast('Refreshing account profile...');
+                await fetch('/api/account/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid })
+                });
+                fetchStats();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function copyText(str) {
+            navigator.clipboard.writeText(str).then(() => {
+                pushToast(`Copied ${str}`);
+            });
+        }
+
+        // Log Filter
+        function applyFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === f);
+            });
+            renderLogs();
+        }
+
+        function toggleAutoScroll() {
+            autoScroll = !autoScroll;
+            const btn = document.getElementById('scroll-toggle');
+            btn.style.color = autoScroll ? '#ffffff' : '#52525b';
+            if (autoScroll) {
+                const screen = document.getElementById('console-screen');
+                screen.scrollTop = screen.scrollHeight;
+            }
+        }
+
+        function copyConsoleLogs() {
+            const text = cachedLogs.map(l => `[${l.time}] [${l.level.toUpperCase()}] ${l.message}`).join('\n');
+            copyText(text);
+        }
+
+        function renderLogs() {
+            const screen = document.getElementById('console-screen');
+            let filtered = cachedLogs;
+            if (currentFilter === 'match') {
+                filtered = cachedLogs.filter(l => l.message.includes('MATCH') || l.message.includes('StartMatch'));
+            } else if (currentFilter === 'exp') {
+                filtered = cachedLogs.filter(l => l.message.includes('EXP') || l.message.includes('Level'));
+            } else if (currentFilter === 'error') {
+                filtered = cachedLogs.filter(l => l.level === 'error' || l.level === 'warning');
+            }
+
+            screen.innerHTML = filtered.map(log => {
+                const cls = 'term-' + (log.level || 'info');
+                return `
+                    <div class="terminal-row">
+                        <span class="term-ts">[${log.time}]</span>
+                        <span class="${cls}">${escapeHtml(log.message)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            if (autoScroll) {
+                screen.scrollTop = screen.scrollHeight;
+            }
+        }
+
+        function cleanProxyDisplay(p) {
+            if (!p) return '';
+            try {
+                if (p.includes('@')) {
+                    const parts = p.split('@');
+                    const proto = parts[0].split('://')[0];
+                    return `${proto}://${parts[1]}`;
+                }
+                return p;
+            } catch (e) {
+                return p;
+            }
+        }
+
+        function renderAccounts() {
+            const container = document.getElementById('accounts-container');
+            const query = (document.getElementById('search-input').value || '').toLowerCase().trim();
+
+            let filtered = cachedAccounts;
+            if (query) {
+                filtered = cachedAccounts.filter(a => 
+                    String(a.uid).toLowerCase().includes(query) || 
+                    String(a.nickname || '').toLowerCase().includes(query)
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-placeholder">
+                        <i class="fa-solid fa-ghost"></i>
+                        <p>${query ? 'No accounts matched your search query.' : 'No active accounts running. Click "+ Add Account" to start!'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(acc => {
+                const gained = acc.gained_exp || 0;
+                let badgeClass = 'online';
+                let badgeText = 'Online';
+
+                if (acc.status === 'IN_MATCH') {
+                    badgeClass = 'in-match';
+                    badgeText = `In Match (${acc.active_matches || 1} parallel)`;
+                } else if (acc.status === 'SEARCHING') {
+                    badgeText = 'Searching Queue...';
+                } else if (acc.status === 'LIMIT_REACHED') {
+                    badgeClass = 'sleep';
+                    let resetStr = '';
+                    if (acc.sleep_until) {
+                        const d = new Date(acc.sleep_until * 1000);
+                        resetStr = ' (' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ')';
+                    }
+                    badgeText = `<i class="fa-solid fa-moon"></i> 6H Limit${resetStr}`;
+                }
+
+                const expModulo = (acc.current_exp || 0) % 1000;
+                const progressWidth = Math.min(100, Math.max(10, Math.round(expModulo / 10)));
+
+                return `
+                    <div class="acc-item">
+                        <div class="acc-row-top">
+                            <div class="acc-identity">
+                                <div class="acc-avatar-box">
+                                    <span class="lvl-txt">LVL</span>
+                                    <span class="lvl-val">${acc.level || 1}</span>
+                                </div>
+                                <div class="acc-details">
+                                    <h4>
+                                        ${escapeHtml(acc.nickname || 'Player_' + acc.uid)}
+                                        <span class="region-tag">${acc.region || 'IND'}</span>
+                                        <select class="acc-mode-select" onchange="switchAccountMode('${acc.uid}', this.value)" title="Change Game Mode for this Account">
+                                            <option value="battle_royale" ${(acc.mode === 'battle_royale' || !acc.mode) ? 'selected' : ''}>Battle Royale (Normal)</option>
+                                            <option value="br_ranked" ${acc.mode === 'br_ranked' ? 'selected' : ''}>BR Ranked</option>
+                                            <option value="lone_wolf_1v1" ${acc.mode === 'lone_wolf_1v1' ? 'selected' : ''}>Lone Wolf 1v1</option>
+                                            <option value="lone_wolf_2v2" ${acc.mode === 'lone_wolf_2v2' ? 'selected' : ''}>Lone Wolf 2v2</option>
+                                            <option value="craftland" ${acc.mode === 'craftland' ? 'selected' : ''}>Craftland (UGC)</option>
+                                            <option value="clash_squad" ${acc.mode === 'clash_squad' ? 'selected' : ''}>Clash Squad</option>
+                                            <option value="clash_squad_ranked" ${acc.mode === 'clash_squad_ranked' ? 'selected' : ''}>CS Ranked</option>
+                                            <option value="training" ${acc.mode === 'training' ? 'selected' : ''}>Training</option>
+                                        </select>
+                                        ${acc.proxy ? `<span class="proxy-badge active" title="${escapeHtml(acc.proxy)}"><i class="fa-solid fa-shield-halved"></i> Proxy</span>` : `<span class="proxy-badge direct"><i class="fa-solid fa-wifi"></i> Direct</span>`}
+                                    </h4>
+                                    <div class="acc-uid-row">
+                                        <span>${acc.uid}</span>
+                                        <button class="btn-copy-mini" onclick="copyText('${acc.uid}')" title="Copy UID">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                        ${acc.proxy ? `<span style="margin-left: 6px; font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" title="${escapeHtml(acc.proxy)}">${escapeHtml(cleanProxyDisplay(acc.proxy))}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="status-badge ${badgeClass}">
+                                <span class="status-dot"></span>
+                                <span>${badgeText}</span>
+                            </div>
+                        </div>
+
+                        <div class="metrics-bar">
+                            <div class="metric-cell">
+                                <span class="lbl">Base EXP</span>
+                                <span class="val">${(acc.initial_exp || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="lbl">Current EXP</span>
+                                <span class="val">${(acc.current_exp || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="lbl">Net Gained</span>
+                                <span class="val green">+${gained.toLocaleString()} EXP</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-box">
+                            <div class="progress-info">
+                                <span>Level ${acc.level} Progress</span>
+                                <span>${acc.matches_played || 0} Matches</span>
+                            </div>
+                            <div class="progress-rail">
+                                <div class="progress-thumb" style="width: ${progressWidth}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="acc-row-bottom">
+                            <span>Status: ${acc.last_updated || 'Active'}${acc.sleep_reason ? ` <span style="color:#fbbf24; font-size:11px;">(${escapeHtml(acc.sleep_reason)})</span>` : ''}</span>
+                            <div class="acc-actions">
+                                ${acc.status === 'LIMIT_REACHED' ? `
+                                    <button class="btn-icon-square" style="color:#fbbf24; border-color:rgba(245,158,11,0.3);" title="Wake Up & Resume Matchmaking" onclick="wakeAccount('${acc.uid}')">
+                                        <i class="fa-solid fa-sun"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn-icon-square" title="Claim Daily Quest & BP Rewards" onclick="claimRewards('${acc.uid}')">
+                                    <i class="fa-solid fa-gift"></i>
+                                </button>
+                                <button class="btn-icon-square" title="Refresh Profile" onclick="refreshProfile('${acc.uid}')">
+                                    <i class="fa-solid fa-arrow-rotate-right"></i>
+                                </button>
+                                <button class="btn-icon-square danger" title="Remove Account" onclick="deleteAccount('${acc.uid}')">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+
+                // Level up detect
+                if (data.accounts) {
+                    data.accounts.forEach(a => {
+                        const id = String(a.uid);
+                        if (lastLevelRegistry[id] && a.level > lastLevelRegistry[id]) {
+                            pushToast(`Level Up: ${a.nickname} reached Level ${a.level}`);
+                            playChime();
+                        }
+                        lastLevelRegistry[id] = a.level;
+                    });
+                }
+
+                // Overview Metrics
+                document.getElementById('stat-total-accounts').innerText = data.total_accounts;
+                document.getElementById('stat-total-exp').innerText = '+' + (data.total_gained_exp || 0).toLocaleString() + ' EXP';
+                document.getElementById('stat-total-matches').innerText = (data.total_matches || 0).toLocaleString();
+
+                const minutes = Math.max(1, (Date.now() - startTime) / 60000);
+                const rateHour = Math.round(((data.total_gained_exp || 0) / minutes) * 60);
+                const rateMin = (((data.total_matches || 0) / minutes)).toFixed(1);
+
+                document.getElementById('stat-exp-rate').innerText = `+${rateHour.toLocaleString()} EXP/h`;
+                document.getElementById('stat-match-rate').innerText = `${rateMin}/min`;
+
+                const inMatch = (data.accounts || []).reduce((sum, a) => sum + (Number(a.active_matches) || (a.status === 'IN_MATCH' ? 1 : 0)), 0);
+                document.getElementById('stat-active-in-match').innerText = `${inMatch} In-Match`;
+
+                // Sync global mode dropdown if not focused
+                if (data.global_mode) {
+                    const sel = document.getElementById('global-mode-select');
+                    if (sel && document.activeElement !== sel) {
+                        sel.value = data.global_mode;
+                    }
+                }
+
+                cachedAccounts = data.accounts || [];
+                cachedLogs = data.logs || [];
+
+                renderAccounts();
+                renderLogs();
+
+                // Sparkline Update
+                if (sparklineChart) {
+                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    if (sparklineChart.data.labels.length > 20) {
+                        sparklineChart.data.labels.shift();
+                        sparklineChart.data.datasets[0].data.shift();
+                    }
+                    sparklineChart.data.labels.push(timeStr);
+                    sparklineChart.data.datasets[0].data.push(data.total_gained_exp || 0);
+                    sparklineChart.update('none');
+                }
+
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        function escapeHtml(t) {
+            if (!t) return '';
+            return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // Ticking Uptime
+        setInterval(() => {
+            const sec = Math.floor((Date.now() - startTime) / 1000);
+            const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+            const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            document.getElementById('stat-uptime').innerText = `${h}:${m}:${s}`;
+        }, 1000);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupChart();
+            fetchStats();
+            setInterval(fetchStats, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "1": {
+    "wire_type": "varint",
+    "data": 18374719336
+  },
+  "2": {
+    "wire_type": "varint",
+    "data": 3
+  },
+  "4": {
+    "wire_type": "varint",
+    "data": 5
+  }
+}
